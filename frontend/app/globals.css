@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+  --tw-gradient-from: #312d43 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(49, 45, 67, 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+
 body {
-  @apply bg-background text-foreground font-sans;
+  @apply bg-background text-foreground;
+  font-family: 'Rubik', sans-serif;
 }
 
 .navbar {
-  @apply bg-background text-foreground border-b border-secondary flex justify-between;
-  @apply items-center px-8 py-4 shadow-[0_2px_4px_rgba(0,0,0,0.05)];
+  /* @apply items-center px-8 py-4 shadow-[0_2px_4px_rgba(0, 0, 0, 0.05)]; */
 }
 
 .app-title {
@@ -16,7 +25,7 @@ body {
 }
 
 .container {
-  @apply max-w-[640px] my-8 mx-auto p-4 bg-white rounded-2xl shadow-[0_2px_4px_rgba(0,0,0,0.1)];
+  /* @apply max-w-[640px] my-8 mx-auto p-4 bg-white rounded-2xl shadow-[0_2px_4px_rgba(0, 0, 0, 0.1)]; */
 }
 
 .title {
@@ -49,4 +58,22 @@ body {
 
 .event-item:last-child {
   @apply border-none;
+}
+
+
+.radix-themes {
+  --default-font-family: 'Rubik', sans-serif !important;
+}
+
+@layer utilities {
+  .card-bg {
+    background-image: linear-gradient(to bottom, rgba(60, 55, 82, 0.5), rgba(48, 46, 66, 0.5));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border: 2px solid transparent;
+    border-color: rgba(47, 93, 241, .3);
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 }

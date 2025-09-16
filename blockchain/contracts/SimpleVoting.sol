@@ -1,53 +1,79 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+
 contract SimpleVoting {
-    uint256 public numChoices;
-    uint256[] public voteCounts; // Indices from 0 to numChoices - 1
-    mapping(address => uint256) public votes; // voter => choice index
-    mapping(address => bool) public hasVoted;
-
-    event Voted(address indexed voter, uint256 choice, int8 quantity);
-
-    constructor(uint256 _numChoices) {
-        require(_numChoices > 0, "Number of choices must be > zero");
-        numChoices = _numChoices;
-        voteCounts = new uint256[](numChoices); // Initialize vote counts
+    struct Question {
+        string question;
+        address createdBy;
+        string[2] possibleAnswers;
+        string image; // URL or IPFS hash
+        uint256[2] voteCounts;
     }
 
-    function vote(uint256 choice) public {
-        require(choice < numChoices, "Invalid choice");
+    Question[] public questions;
+    // questionId => voter => answerIndex (0 or 1)
+    mapping(uint256 => mapping(address => uint8)) public votes;
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
 
-        if (!hasVoted[msg.sender]) {
-            // New voter
-            votes[msg.sender] = choice;
-            voteCounts[choice] += 1;
-            hasVoted[msg.sender] = true;
-            emit Voted(msg.sender, choice, 1);
+    event QuestionCreated(uint256 indexed questionId, string question, address indexed createdBy);
+    event Voted(address indexed voter, uint256 indexed questionId, uint8 answerIndex);
+
+    function createQuestion(string memory _question, string memory _answer1, string memory _answer2, string memory _image) public {
+        Question memory q = Question({
+            question: _question,
+            createdBy: msg.sender,
+            possibleAnswers: [_answer1, _answer2],
+            image: _image,
+            voteCounts: [uint256(0), uint256(0)]
+        });
+        questions.push(q);
+        emit QuestionCreated(questions.length - 1, _question, msg.sender);
+    }
+
+    function vote(uint256 questionId, uint8 answerIndex) public {
+        require(questionId < questions.length, "Invalid question");
+        require(answerIndex < 2, "Invalid answer index");
+
+        if (!hasVoted[questionId][msg.sender]) {
+            // New vote
+            votes[questionId][msg.sender] = answerIndex;
+            questions[questionId].voteCounts[answerIndex] += 1;
+            hasVoted[questionId][msg.sender] = true;
+            emit Voted(msg.sender, questionId, answerIndex);
         } else {
-            // Voter changing their vote
-            uint256 oldChoice = votes[msg.sender];
-            voteCounts[oldChoice] -= 1;
-            emit Voted(msg.sender, oldChoice, -1);
-
-            votes[msg.sender] = choice;
-            voteCounts[choice] += 1;
-            emit Voted(msg.sender, choice, 1);
+            // Change vote
+            uint8 oldAnswer = votes[questionId][msg.sender];
+            require(oldAnswer != answerIndex, "Already voted for this answer");
+            questions[questionId].voteCounts[oldAnswer] -= 1;
+            questions[questionId].voteCounts[answerIndex] += 1;
+            votes[questionId][msg.sender] = answerIndex;
+            emit Voted(msg.sender, questionId, answerIndex);
         }
     }
 
-    function clearVote() public {
-        require(hasVoted[msg.sender], "No vote to clear");
-
-        uint256 oldChoice = votes[msg.sender];
-        voteCounts[oldChoice] -= 1;
-        emit Voted(msg.sender, oldChoice, -1);
-
-        hasVoted[msg.sender] = false;
-        delete votes[msg.sender];
+    function clearVote(uint256 questionId) public {
+        require(questionId < questions.length, "Invalid question");
+        require(hasVoted[questionId][msg.sender], "No vote to clear");
+        uint8 oldAnswer = votes[questionId][msg.sender];
+        questions[questionId].voteCounts[oldAnswer] -= 1;
+        hasVoted[questionId][msg.sender] = false;
+        delete votes[questionId][msg.sender];
     }
 
-    function getVotes() public view returns (uint256[] memory) {
-        return voteCounts;
+    function getQuestion(uint256 questionId) public view returns (
+        string memory question,
+        address createdBy,
+        string[2] memory possibleAnswers,
+        string memory image,
+        uint256[2] memory voteCounts
+    ) {
+        require(questionId < questions.length, "Invalid question");
+        Question storage q = questions[questionId];
+        return (q.question, q.createdBy, q.possibleAnswers, q.image, q.voteCounts);
+    }
+
+    function getQuestionsCount() public view returns (uint256) {
+        return questions.length;
     }
 }

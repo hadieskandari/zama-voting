@@ -5,18 +5,29 @@ import { Configuration, ContractsApi, EventsApi, ChainsApi }from "@curvegrid/mul
 import { useAccount } from "wagmi";
 import { useCallback, useMemo } from "react";
 
+
 interface ChainStatus {
   chainID: number;
   blockNumber: number;
 }
 
+export interface Question {
+  question: string;
+  createdBy: string;
+  possibleAnswers: [string, string];
+  image: string;
+  voteCounts: [string, string]; // BigNumber as string
+}
+
 interface MultiBaasHook {
   getChainStatus: () => Promise<ChainStatus | null>;
-  clearVote: () => Promise<SendTransactionParameters>;
-  getVotes: () => Promise<string[] | null>;
-  hasVoted: (ethAddress: string) => Promise<boolean | null>;
-  castVote: (choice: string) => Promise<SendTransactionParameters>;
-  getUserVotes: (ethAddress: string) => Promise<string | null>;
+  createQuestion: (question: string, answer1: string, answer2: string, image: string) => Promise<SendTransactionParameters>;
+  vote: (questionId: number, answerIndex: number) => Promise<SendTransactionParameters>;
+  clearVote: (questionId: number) => Promise<SendTransactionParameters>;
+  getQuestion: (questionId: number) => Promise<Question | null>;
+  getQuestionsCount: () => Promise<number | null>;
+  hasVoted: (questionId: number, ethAddress: string) => Promise<boolean | null>;
+  getUserVote: (questionId: number, ethAddress: string) => Promise<number | null>;
   getVotedEvents: () => Promise<Array<Event> | null>;
 }
 
@@ -71,59 +82,84 @@ const useMultiBaas = (): MultiBaasHook => {
         payload
       );
 
-      if (response.data.result.kind === "MethodCallResponse") {
-        return response.data.result.output;
-      } else if (response.data.result.kind === "TransactionToSignResponse") {
-        return response.data.result.tx;
+      const kind = (response.data.result as any)?.kind;
+      if (kind === "MethodCallResponse") {
+        return (response.data.result as any).output;
+      } else if (kind === "TransactionToSignResponse") {
+        return (response.data.result as any).tx;
       } else {
-        throw new Error(`Unexpected response type: ${response.data.result.kind}`);
+        throw new Error(`Unexpected response type: ${kind}`);
       }
     },
     [contractsApi, chain, votingAddressAlias, votingContractLabel, isConnected, address]
   );
 
-  const clearVote = useCallback(async (): Promise<SendTransactionParameters> => {
-    return await callContractFunction("clearVote");
+
+  // New contract methods
+  const createQuestion = useCallback(async (question: string, answer1: string, answer2: string, image: string): Promise<SendTransactionParameters> => {
+    return await callContractFunction("createQuestion", [question, answer1, answer2, image]);
   }, [callContractFunction]);
 
+  const vote = useCallback(async (questionId: number, answerIndex: number): Promise<SendTransactionParameters> => {
+    return await callContractFunction("vote", [questionId, answerIndex]);
+  }, [callContractFunction]);
 
-  const getVotes = useCallback(async (): Promise<string[] | null> => {
+  const clearVote = useCallback(async (questionId: number): Promise<SendTransactionParameters> => {
+    return await callContractFunction("clearVote", [questionId]);
+  }, [callContractFunction]);
+
+  const getQuestion = useCallback(async (questionId: number): Promise<Question | null> => {
     try {
-      const votes = await callContractFunction("getVotes");
-      return votes;
+      const result = await callContractFunction("getQuestion", [questionId]);
+      // result: [question, createdBy, possibleAnswers, image, voteCounts]
+      return {
+        question: result[0],
+        createdBy: result[1],
+        possibleAnswers: result[2],
+        image: result[3],
+        voteCounts: result[4],
+      };
     } catch (err) {
-      console.error("Error getting votes:", err);
+      console.error("Error getting question:", err);
       return null;
     }
   }, [callContractFunction]);
 
-  const hasVoted = useCallback(async (ethAddress: string): Promise<boolean | null> => {
+  const getQuestionsCount = useCallback(async (): Promise<number | null> => {
     try {
-      const result = await callContractFunction("hasVoted", [ethAddress]);
-      return result
+      const result = await callContractFunction("getQuestionsCount");
+      return Number(result);
+    } catch (err) {
+      console.error("Error getting questions count:", err);
+      return null;
+    }
+  }, [callContractFunction]);
+
+  const hasVoted = useCallback(async (questionId: number, ethAddress: string): Promise<boolean | null> => {
+    try {
+      const result = await callContractFunction("hasVoted", [questionId, ethAddress]);
+      return result;
     } catch (err) {
       console.error("Error checking if user has voted:", err);
       return null;
     }
   }, [callContractFunction]);
 
-  const castVote = useCallback(async (choice: string): Promise<SendTransactionParameters> => {
-    return await callContractFunction("vote", [choice]);
-  }, [callContractFunction]);
-
-  const getUserVotes = useCallback(async (ethAddress: string): Promise<string | null> => {
+  const getUserVote = useCallback(async (questionId: number, ethAddress: string): Promise<number | null> => {
     try {
-      const result = await callContractFunction("votes", [ethAddress]);
-      return result as string;
+      const result = await callContractFunction("votes", [questionId, ethAddress]);
+      return Number(result);
     } catch (err) {
       console.error("Error getting user's vote:", err);
       return null;
     }
   }, [callContractFunction]);
 
+
   const getVotedEvents = useCallback(async (): Promise<Array<Event> | null> => {
     try {
-      const eventSignature = "Voted(address,uint256,int8)";
+      // Updated event signature: Voted(address,uint256,uint8)
+      const eventSignature = "Voted(address,uint256,uint8)";
       const response = await eventsApi.listEvents(
         undefined,
         undefined,
@@ -137,7 +173,6 @@ const useMultiBaas = (): MultiBaasHook => {
         eventSignature,
         50
       );
-
       return response.data.result;
     } catch (err) {
       console.error("Error getting voted events:", err);
@@ -147,11 +182,13 @@ const useMultiBaas = (): MultiBaasHook => {
 
   return {
     getChainStatus,
+    createQuestion,
+    vote,
     clearVote,
-    getVotes,
+    getQuestion,
+    getQuestionsCount,
     hasVoted,
-    castVote,
-    getUserVotes,
+    getUserVote,
     getVotedEvents,
   };
 };

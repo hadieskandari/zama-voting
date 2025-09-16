@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MultiBaas Sample App is a simple voting demo for EVM blockchains",
   "scripts": {
-	  "postinstall": "node postinstall.js",
+    "postinstall": "node postinstall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,5 +24,12 @@
     "url": "https://github.com/curvegrid/multibaas-sample-app/issues"
   },
   "homepage": "https://github.com/curvegrid/multibaas-sample-app#readme",
-	"workspaces": ["blockchain", "frontend"]
+  "workspaces": [
+    "blockchain",
+    "frontend"
+  ],
+  "dependencies": {
+    "gsap": "^3.13.0",
+    "react-icons": "^5.5.0"
+  }
 }

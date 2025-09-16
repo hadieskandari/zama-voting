@@ -7,7 +7,7 @@ async function main() {
   await hre.mbDeployer.setup();
   const numberOfOptions = 5;
 
-  const simpleVoting = await hre.mbDeployer.deploy(signer, 'SimpleVoting', [numberOfOptions], {
+  const simpleVoting = await hre.mbDeployer.deploy(signer, 'SimpleVoting', [], {
     addressAlias: 'simple_voting',
     contractVersion: '1.0',
     contractLabel: 'simple_voting',

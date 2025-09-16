@@ -11,8 +11,8 @@
     "fix:sol": "npm run fix:prettier && npm run fix:solhint",
     "fix:all": "npm run fix:eslint && npm run fix:sol",
     "test": "npx hardhat test",
-    "deploy:voting:dev": "HARDHAT_NETWORK=development npx hardhat run scripts/deploy-mb.ts",
-    "deploy:voting:testing": "HARDHAT_NETWORK=testing npx hardhat run scripts/deploy-mb.ts"
+    "deploy:voting:dev": "cross-env HARDHAT_NETWORK=development npx hardhat run scripts/deploy-mb.ts",
+    "deploy:voting:testing": "cross-env HARDHAT_NETWORK=testing npx hardhat run scripts/deploy-mb.ts"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "cross-env": "^10.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

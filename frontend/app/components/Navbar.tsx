@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
     const items = [
         {
             label: "About",
-            bgColor: "#0D0716",
+            bgColor: "#000000",
             textColor: "#fff",
             links: [
                 { label: "Company", ariaLabel: "About Company" },
@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
                 logo={logo}
                 logoAlt="Zama CV"
                 items={items}
-                baseColor="#ffe16956"
+                baseColor="#0000009f"
                 menuColor="#000"
                 buttonBgColor="#111"
                 buttonTextColor="#fff"

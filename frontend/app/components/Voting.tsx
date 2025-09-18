@@ -91,15 +91,15 @@ const Voting: React.FC<VotingProps> = ({ setTxReceipt, question, primary = false
           <div className="card-bg p-6">
 
             <Flex gap="3" align="center" className="mb-4">
-              <Text as="div" size="2" color="iris" align="center" weight="light">
-                We ask your opinion about $ZAMA ecosystem proposals. Your vote is confidential and cannot be linked back to you.
+              <Text as="div" size="2"  align="center" weight="light">
+                We ask your opinion about $ZAMA. Your vote is confidential and cannot be linked back to you.
               </Text>
             </Flex>
 
 
             <Card variant="surface" key={question.id} className="mb-6">
               <Flex justify="between">
-                <Flex gap="3" align="center">
+                <Flex gap="3" align="center" >
                   <Avatar size="7" src={question.image} radius="medium" fallback={question.question.slice(0, 2).toUpperCase()} />
                   <Box>
                     <Text as="div" size="5" weight="bold">{question.question}</Text>
@@ -126,7 +126,7 @@ const Voting: React.FC<VotingProps> = ({ setTxReceipt, question, primary = false
                               isDisabled={isTxProcessing}
                               handleVote={() => handleVote(question.id, idx)}
                               label={ans}
-                              color={!idx ? "from-indigo-500 to-purple-500 absolute inset-0 bg-gradient-to-r rounded-lg" : "from-pink-500 to-red-500 absolute inset-0 bg-gradient-to-r rounded-lg"
+                              color={!idx ? "from-stone-900 to-green-500 absolute inset-0 bg-gradient-to-r rounded-lg" : "from-rose-500 to-stone-900 absolute inset-0 bg-gradient-to-r rounded-lg"
                               }
                             />
                           ))}

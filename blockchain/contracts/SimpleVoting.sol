@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-
 contract SimpleVoting {
     struct Question {
         string question;
@@ -16,10 +15,23 @@ contract SimpleVoting {
     mapping(uint256 => mapping(address => uint8)) public votes;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
 
-    event QuestionCreated(uint256 indexed questionId, string question, address indexed createdBy);
-    event Voted(address indexed voter, uint256 indexed questionId, uint8 answerIndex);
+    event QuestionCreated(
+        uint256 indexed questionId,
+        string question,
+        address indexed createdBy
+    );
+    event Voted(
+        address indexed voter,
+        uint256 indexed questionId,
+        uint8 answerIndex
+    );
 
-    function createQuestion(string memory _question, string memory _answer1, string memory _answer2, string memory _image) public {
+    function createQuestion(
+        string memory _question,
+        string memory _answer1,
+        string memory _answer2,
+        string memory _image
+    ) public {
         Question memory q = Question({
             question: _question,
             createdBy: msg.sender,
@@ -30,6 +42,8 @@ contract SimpleVoting {
         questions.push(q);
         emit QuestionCreated(questions.length - 1, _question, msg.sender);
     }
+
+    function resetQuestions() public {}
 
     function vote(uint256 questionId, uint8 answerIndex) public {
         require(questionId < questions.length, "Invalid question");
@@ -52,6 +66,14 @@ contract SimpleVoting {
         }
     }
 
+    function hasVotedFor(
+        uint256 questionId,
+        address voter
+    ) public view returns (bool) {
+        require(questionId < questions.length, "Invalid question");
+        return hasVoted[questionId][voter];
+    }
+
     function clearVote(uint256 questionId) public {
         require(questionId < questions.length, "Invalid question");
         require(hasVoted[questionId][msg.sender], "No vote to clear");
@@ -61,19 +83,52 @@ contract SimpleVoting {
         delete votes[questionId][msg.sender];
     }
 
-    function getQuestion(uint256 questionId) public view returns (
-        string memory question,
-        address createdBy,
-        string[2] memory possibleAnswers,
-        string memory image,
-        uint256[2] memory voteCounts
-    ) {
+    function getQuestion(
+        uint256 questionId
+    )
+        public
+        view
+        returns (
+            string memory question,
+            address createdBy,
+            string[2] memory possibleAnswers,
+            string memory image,
+            uint256[2] memory voteCounts
+        )
+    {
         require(questionId < questions.length, "Invalid question");
         Question storage q = questions[questionId];
-        return (q.question, q.createdBy, q.possibleAnswers, q.image, q.voteCounts);
+        return (
+            q.question,
+            q.createdBy,
+            q.possibleAnswers,
+            q.image,
+            q.voteCounts
+        );
     }
 
     function getQuestionsCount() public view returns (uint256) {
         return questions.length;
+    }
+
+    function getUserQuestions(
+        address user
+    ) public view returns (uint256[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < questions.length; i++) {
+            if (questions[i].createdBy == user) {
+                count++;
+            }
+        }
+
+        uint256[] memory userQuestions = new uint256[](count);
+        uint256 index = 0;
+        for (uint256 i = 0; i < questions.length; i++) {
+            if (questions[i].createdBy == user) {
+                userQuestions[index] = i;
+                index++;
+            }
+        }
+        return userQuestions;
     }
 }

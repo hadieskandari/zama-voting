@@ -9,7 +9,7 @@ async function main() {
 
   const simpleVoting = await hre.mbDeployer.deploy(signer, 'SimpleVoting', [], {
     addressAlias: 'simple_voting',
-    contractVersion: '1.0',
+    contractVersion: '1.1',
     contractLabel: 'simple_voting',
   });
 

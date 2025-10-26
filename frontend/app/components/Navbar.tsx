@@ -8,18 +8,20 @@ const Navbar: React.FC = () => {
 
     const items = [
         {
-            label: "About",
+            label: "Socials",
             bgColor: "#000000",
             textColor: "#fff",
             links: [
-                { label: "Company", ariaLabel: "About Company" },
-                { label: "Careers", ariaLabel: "About Careers" }
+                { label: "Twitter (X)", ariaLabel: "X account" },
+                { label: "GitHub", ariaLabel: "Github links" },
+                { label: "Telegram", ariaLabel: "Telegram links" },
+                { label: "Email", ariaLabel: "Email" }
             ],
             href: "#"
         },
         {
-            label: "Projects",
-            bgColor: "#170D27",
+            label: "About",
+            bgColor: "#1f1f1f",
             textColor: "#fff",
             links: [
                 { label: "Featured", ariaLabel: "Featured Projects" },
@@ -28,13 +30,13 @@ const Navbar: React.FC = () => {
             href: "#"
         },
         {
-            label: "Contact",
-            bgColor: "#271E37",
-            textColor: "#fff",
+            label: "Voting DApp",
+            bgColor: "#ffd209",
+            textColor: "#000",
             links: [
-                { label: "Email", ariaLabel: "Email us" },
-                { label: "Twitter", ariaLabel: "Twitter" },
-                { label: "LinkedIn", ariaLabel: "LinkedIn" }
+                { label: "Get Faucet", ariaLabel: "Email us" },
+                { label: "Create Vote", ariaLabel: "Twitter" },
+                { label: "Share Vote", ariaLabel: "LinkedIn" }
             ],
             href: "#"
         }

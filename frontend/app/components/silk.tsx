@@ -136,7 +136,7 @@ const Silk: React.FC<SilkProps> = ({ speed = 5, scale = 1, color = '#fed20a', no
       uSpeed: { value: speed },
       uScale: { value: scale },
       uNoiseIntensity: { value: noiseIntensity },
-      uColor: { value: new Color(...hexToNormalizedRGB('#fed20a')) },
+      uColor: { value: new Color(...hexToNormalizedRGB('#CCCCCC')) },
       uRotation: { value: rotation },
       uTime: { value: 0 }
     }),

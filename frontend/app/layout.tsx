@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         <Providers>
-          <Theme accentColor="teal" grayColor="sage" radius="small" scaling="90%" panelBackground="translucent" appearance="dark">
+          <Theme accentColor="teal" grayColor="sand" radius="small" scaling="90%" panelBackground="translucent" appearance="dark">
             {children}
           </Theme>
           </Providers>

@@ -53,9 +53,9 @@ describe('SimpleVoting', function () {
   });
 
   it('should not allow voting for invalid question or answer', async function () {
-    await expect(voting.connect(addr1).vote(0, 0)).to.be.revertedWith('Invalid question');
+    await expect(voting.connect(addr1).vote(0, 0)).to.be.revertedWithCustomError(voting, 'InvalidQuestion');
     await voting.createQuestion('Best color?', 'Red', 'Blue', 'image-url');
-    await expect(voting.connect(addr1).vote(0, 2)).to.be.revertedWith('Invalid answer index');
+    await expect(voting.connect(addr1).vote(0, 2)).to.be.revertedWithCustomError(voting, 'InvalidAnswerIndex');
   });
 
   it('should fetch all created questions', async function () {
@@ -69,5 +69,22 @@ describe('SimpleVoting', function () {
     expect(q1.question).to.equal('Best animal?');
     expect(q0.possibleAnswers[0]).to.equal('Red');
     expect(q1.possibleAnswers[1]).to.equal('Dog');
+  });
+
+  it('should report hasVotedFor correctly', async function () {
+    await voting.createQuestion('Best color?', 'Red', 'Blue', 'img1');
+    // initially nobody has voted
+    const hasBefore = await voting.hasVotedFor(0, owner.address);
+    expect(hasBefore).to.equal(false);
+
+    // addr1 votes
+    await voting.connect(addr1).vote(0, 1);
+    const hasAfter = await voting.hasVotedFor(0, addr1.address);
+    expect(hasAfter).to.equal(true);
+
+    // clear vote
+    await voting.connect(addr1).clearVote(0);
+    const hasCleared = await voting.hasVotedFor(0, addr1.address);
+    expect(hasCleared).to.equal(false);
   });
 });

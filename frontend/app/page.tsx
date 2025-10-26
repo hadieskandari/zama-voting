@@ -69,44 +69,27 @@ const Home: React.FC = () => {
       </div>
       <div>
         <Flex direction="column" gap="4" align="center" className="mt-5">
-          <Text as="div" size="8" weight="bold">Welcome to ZamaCV Confidential voting!</Text>
+          <Flex align="center" justify="center" gap="2">
+            <Text as="div" size="8" weight="bold">First ever </Text>
+            <img style={{ backgroundColor: '#ffd208', paddingLeft:"4px" ,paddingRight:"4px" }} alt="cv" loading="lazy" width="80"  decoding="async" data-nimg="1" src="https://cdn.prod.website-files.com/61bc21e3a843412266a08eb3/68417dce00c33fce2253fc6e_Untitled%20design%20(1).svg" />
+            <Text as="div" size="8" weight="bold">confidential voting!</Text>
+
+          </Flex>
+          
           <Flex align="center" justify="center" gap="1">
             <Text as="div" size="2" color="gray">Prevents bribery and blackmailing by keeping votes private with </Text>
-            <img style={{ backgroundColor: '#ffd208' }} alt="cv" loading="lazy" width="40" height="25" decoding="async" data-nimg="1" src="https://cdn.prod.website-files.com/61bc21e3a843412266a08eb3/68417dce00c33fce2253fc6e_Untitled%20design%20(1).svg" />
-
+            <Text as="div" size="2" color="yellow" weight="bold">ZAMA</Text>
           </Flex>
         </Flex>
         {
-          questions.length === 0 ? (
-            <Flex justify="center" className="my-10 px-4">
-              <Text as="div" size="3" color="gray">No questions available. Please check back later.</Text>
-            </Flex>
-          ) : <Voting setTxReceipt={setTxReceipt} question={questions[0]} primary />
+          // questions.length === 0 ? (
+          //   <Flex justify="center" className="my-10 px-4">
+          //     <Text as="div" size="3" color="gray">No questions available. Please check back later.</Text>
+          //   </Flex>
+          // ) : <Voting setTxReceipt={setTxReceipt} question={questions[0]} primary />
+          <CreateQuestion />
 
         }
-
-
-        <Grid columns="2" rows="2" className="mt-10 px-4">
-
-          {
-            questions.map((q, idx) => (
-              <div key={idx} className="mb-6">
-
-                <Voting setTxReceipt={setTxReceipt} question={q} />
-
-              </div>
-            ))
-          }
-
-        </Grid>
-        {/* <CreateQuestion /> */}
-        {/* question 2: 
-          Does FHEVM integration excite you for Zama's future?
-        */}
-        {/* <Events txReceipt={txReceipt} /> */}
-        {/* <VoteList /> */}
-
-
 
 
       </div>

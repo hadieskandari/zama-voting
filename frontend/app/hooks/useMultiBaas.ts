@@ -22,13 +22,15 @@ export interface Question {
 interface MultiBaasHook {
   getChainStatus: () => Promise<ChainStatus | null>;
   createQuestion: (question: string, answer1: string, answer2: string, image: string) => Promise<SendTransactionParameters>;
-  vote: (questionId: number, answerIndex: number) => Promise<SendTransactionParameters>;
+  // vote expects an encrypted answer handle and accompanying proof (per new contract)
+  vote: (questionId: number, encryptedAnswerIndex: string, inputProof: string) => Promise<SendTransactionParameters>;
   clearVote: (questionId: number) => Promise<SendTransactionParameters>;
   getQuestion: (questionId: number) => Promise<Question | null>;
   getQuestionsCount: () => Promise<number | null>;
   hasVoted: (questionId: number, ethAddress: string) => Promise<boolean | null>;
   getUserVote: (questionId: number, ethAddress: string) => Promise<number | null>;
   getVotedEvents: () => Promise<Array<Event> | null>;
+  getUserQuestions: (ethAddress: string) => Promise<number[] | null>;
 }
 
 const useMultiBaas = (): MultiBaasHook => {
@@ -100,8 +102,9 @@ const useMultiBaas = (): MultiBaasHook => {
     return await callContractFunction("createQuestion", [question, answer1, answer2, image]);
   }, [callContractFunction]);
 
-  const vote = useCallback(async (questionId: number, answerIndex: number): Promise<SendTransactionParameters> => {
-    return await callContractFunction("vote", [questionId, answerIndex]);
+  // Updated to match new contract: vote(uint256 questionId, externalEuint8 encryptedAnswerIndex, bytes calldata inputProof)
+  const vote = useCallback(async (questionId: number, encryptedAnswerIndex: string, inputProof: string): Promise<SendTransactionParameters> => {
+    return await callContractFunction("vote", [questionId, encryptedAnswerIndex, inputProof]);
   }, [callContractFunction]);
 
   const clearVote = useCallback(async (questionId: number): Promise<SendTransactionParameters> => {
@@ -135,10 +138,35 @@ const useMultiBaas = (): MultiBaasHook => {
     }
   }, [callContractFunction]);
 
+  const getUserQuestions = useCallback(async (ethAddress: string): Promise<number[] | null> => {
+    try {
+      const result = await callContractFunction("getUserQuestions", [ethAddress]);
+      // result is an array of question IDs (BigNumber as string)
+      return (result as string[]).map((idStr) => Number(idStr));
+    } catch (err) {
+      console.error("Error getting user's questions:", err);
+      return null;
+    }
+  }
+  , [callContractFunction]);
+
   const hasVoted = useCallback(async (questionId: number, ethAddress: string): Promise<boolean | null> => {
     try {
+      if (!ethAddress || ethAddress === "") {
+        console.warn("hasVoted called with empty ethAddress");
+        return false;
+      }
       const result = await callContractFunction("hasVoted", [questionId, ethAddress]);
-      return result;
+      if (typeof result === "boolean") return result;
+      if (Array.isArray(result)) {
+        const first = result[0];
+        if (typeof first === "boolean") return first;
+        if (typeof first === "string") return first === "true" || first === "1";
+        return Boolean(first);
+      }
+      if (typeof result === "string") return result === "true" || result === "1";
+      // Fallback
+      return Boolean(result);
     } catch (err) {
       console.error("Error checking if user has voted:", err);
       return null;
@@ -147,7 +175,15 @@ const useMultiBaas = (): MultiBaasHook => {
 
   const getUserVote = useCallback(async (questionId: number, ethAddress: string): Promise<number | null> => {
     try {
+      if (!ethAddress || ethAddress === "") {
+        console.warn("getUserVote called with empty ethAddress");
+        return null;
+      }
       const result = await callContractFunction("votes", [questionId, ethAddress]);
+      console.debug("getUserVote raw result:", result);
+      if (result === null || result === undefined) return null;
+      if (Array.isArray(result)) return Number(result[0]);
+      if (typeof result === "object" && (result as any).toString) return Number((result as any).toString());
       return Number(result);
     } catch (err) {
       console.error("Error getting user's vote:", err);
@@ -190,6 +226,7 @@ const useMultiBaas = (): MultiBaasHook => {
     hasVoted,
     getUserVote,
     getVotedEvents,
+    getUserQuestions
   };
 };
 

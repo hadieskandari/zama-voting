@@ -68,7 +68,8 @@ const Voting: React.FC<VotingProps> = ({ setTxReceipt, question, primary = true 
       if (userHasVoted) {
         tx = await clearVote(questionId);
       } else {
-        tx = await vote(questionId, answerIndex);
+        // Pass the vote as a euint8 - Zama's FHEVM will handle encryption
+        tx = await vote(questionId, answerIndex.toString());
       }
       const hash = await sendTransactionAsync(tx);
       setTxHash(hash);

@@ -85,7 +85,7 @@ const chainList = [
    zircuit, zircuitTestnet
 ];
 
-const selectedChain = chainList.find(chain => chain.id === Number(process.env.NEXT_PUBLIC_MULTIBAAS_CHAIN_ID)) || curvegridTestnet;
+const selectedChain = chainList.find(chain => chain.id === Number(process.env.NEXT_PUBLIC_MULTIBAAS_CHAIN_ID)) || baseSepolia;
 
 const config = getDefaultConfig({
   appName: 'Simple Voting DApp',

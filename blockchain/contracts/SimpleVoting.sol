@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "@fhevm/solidity/lib/FHE.sol";
-import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
+import { SepoliaConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
 
 contract SimpleVoting is SepoliaConfig {
     struct Question {
@@ -79,10 +79,9 @@ contract SimpleVoting is SepoliaConfig {
 
     function vote(
         uint256 questionId,
-        externalEuint8 encryptedAnswerIndex,
-        bytes calldata inputProof
+        euint8 encryptedAnswerIndex
     ) external {
-        euint8 evalue = FHE.fromExternal(encryptedAnswerIndex, inputProof);
+        euint8 evalue = encryptedAnswerIndex;
 
         require(questionId < questions.length, "Invalid question");
         // Request asynchronous decryption. store mapping so callback knows which
@@ -114,7 +113,10 @@ contract SimpleVoting is SepoliaConfig {
         require(questionId < questions.length, "Invalid question in callback");
 
         /// @dev This check is used to verify that the request id is the expected one.
-        require(requestId == questions[questionId].latestRequestId, "Invalid requestId");
+        require(
+            requestId == questions[questionId].latestRequestId,
+            "Invalid requestId"
+        );
 
         // verify signatures
         FHE.checkSignatures(requestId, cleartexts, decryptionProof);

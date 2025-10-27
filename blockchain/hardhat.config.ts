@@ -25,11 +25,26 @@ const config: HardhatUserConfig = {
     development: {
       url: web3Url,
       accounts: [deployerPrivateKey],
+      chainId: 84532, // Base Sepolia chain ID
+      gasPrice: 'auto',
+      verify: {
+        etherscan: {
+          apiUrl: 'https://api-sepolia.basescan.org'
+        }
+      }
     },
     testing: {
       url: web3Url,
       accounts: [deployerPrivateKey],
+      chainId: 84532, // Base Sepolia chain ID
+      gasPrice: 'auto'
     },
+    baseSepolia: {
+      url: web3Url,
+      accounts: [deployerPrivateKey],
+      chainId: 84532,
+      gasPrice: 'auto'
+    }
   },
   mbConfig: {
     apiKey: adminApiKey,

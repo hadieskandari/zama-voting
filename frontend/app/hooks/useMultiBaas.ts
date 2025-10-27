@@ -22,8 +22,8 @@ export interface Question {
 interface MultiBaasHook {
   getChainStatus: () => Promise<ChainStatus | null>;
   createQuestion: (question: string, answer1: string, answer2: string, image: string) => Promise<SendTransactionParameters>;
-  // vote expects an encrypted answer handle and accompanying proof (per new contract)
-  vote: (questionId: number, encryptedAnswerIndex: string, inputProof: string) => Promise<SendTransactionParameters>;
+  // Vote function takes a questionId and raw answer index - encryption handled by FHEVM
+  vote: (questionId: number, answerIndex: number) => Promise<SendTransactionParameters>;
   clearVote: (questionId: number) => Promise<SendTransactionParameters>;
   getQuestion: (questionId: number) => Promise<Question | null>;
   getQuestionsCount: () => Promise<number | null>;
@@ -102,9 +102,10 @@ const useMultiBaas = (): MultiBaasHook => {
     return await callContractFunction("createQuestion", [question, answer1, answer2, image]);
   }, [callContractFunction]);
 
-  // Updated to match new contract: vote(uint256 questionId, externalEuint8 encryptedAnswerIndex, bytes calldata inputProof)
-  const vote = useCallback(async (questionId: number, encryptedAnswerIndex: string, inputProof: string): Promise<SendTransactionParameters> => {
-    return await callContractFunction("vote", [questionId, encryptedAnswerIndex, inputProof]);
+  // Updated to match new contract: vote(uint256 questionId, euint8 encryptedAnswerIndex)
+  const vote = useCallback(async (questionId: number, answerIndex: number): Promise<SendTransactionParameters> => {
+    // Pass the raw number - MultiBaas and FHEVM will handle the encryption
+    return await callContractFunction("vote", [questionId, answerIndex.toString()]);
   }, [callContractFunction]);
 
   const clearVote = useCallback(async (questionId: number): Promise<SendTransactionParameters> => {

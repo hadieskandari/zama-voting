@@ -1,5 +1,13 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
+import { useVoting } from "../hooks/useVoting";
+import VoteButton from "./VoteButton";
+import { Avatar, Box, Button, Card, Flex, Text } from "@radix-ui/themes";
+import { Cross1Icon } from "@radix-ui/react-icons";
 
+"use client";
 import React, { useEffect, useState } from "react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
@@ -21,16 +29,27 @@ interface QuestionData {
   voteCounts: [string, string];
 }
 
+interface VotingProps {
+  questionId: number;
+  primary?: boolean;
+}
+
 export default function Voting({ questionId, primary = true }: VotingProps) {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { getQuestion, vote, clearVote, hasVoted } = useVoting();
 
-  const [loading, setLoading] = useState(false);
-  const [userHasVoted, setUserHasVoted] = useState(false);
+
+  const [userHasVoted, setUserHasVoted] = useState<boolean>(false);
   const [votedFor, setVotedFor] = useState<number | null>(null);
-  const [error, setError] = useState("");
-  const [questionData, setQuestionData] = useState<QuestionData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [questionData, setQuestionData] = useState<{
+    question: string;
+    createdBy: string;
+    possibleAnswers: [string, string];
+    image: string;
+    voteCounts: [string, string];
+  } | null>(null);
 
   useEffect(() => {
     const loadQuestionData = async () => {
@@ -64,7 +83,6 @@ export default function Voting({ questionId, primary = true }: VotingProps) {
       }
     } catch (error) {
       console.error("Error voting:", error);
-      setError("Failed to vote. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -86,14 +104,15 @@ export default function Voting({ questionId, primary = true }: VotingProps) {
       }
     } catch (error) {
       console.error("Error clearing vote:", error);
-      setError("Failed to clear vote. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   if (!questionData) {
-    return <Card>Loading...</Card>;
+    return (
+      <Card>Loading...</Card>
+    );
   }
 
   const totalVotes = questionData.voteCounts.reduce(
@@ -193,4 +212,7 @@ export default function Voting({ questionId, primary = true }: VotingProps) {
       )}
     </Flex>
   );
+  );
+};
+
 }

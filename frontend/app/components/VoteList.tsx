@@ -1,23 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Voting from "./Voting";
 import { Box, Grid } from "@radix-ui/themes";
-
-// Sample votes data (could be replaced with real data)
-const sampleVotes = [
-  { id: 1, label: "Vote A" },
-  { id: 2, label: "Vote B" },
-  { id: 3, label: "Vote C" },
-  { id: 4, label: "Vote D" },
-  { id: 5, label: "Vote E" },
-  { id: 6, label: "Vote F" },
-];
+import { useVoting } from "../hooks/useVoting";
 
 const VoteList: React.FC = () => {
+  const { questionsCount, getQuestion } = useVoting();
+  const [questions, setQuestions] = useState<Array<{ id: number }>>([]);
+
+  useEffect(() => {
+    if (questionsCount > 0) {
+      setQuestions(Array.from({ length: questionsCount }, (_, i) => ({ id: i })));
+    }
+  }, [questionsCount]);
+
   return (
     <Grid columns="2" gap="4" width="auto">
-      {sampleVotes.map((vote) => (
-        <Box key={vote.id}>
-          <Voting setTxReceipt={() => {}} />
+      {questions.map((question) => (
+        <Box key={question.id}>
+          <Voting questionId={question.id} />
         </Box>
       ))}
     </Grid>

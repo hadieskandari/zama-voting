@@ -9,7 +9,7 @@ import Navbar from "./components/Navbar";
 import VoteList from "./components/VoteList";
 import { Flex, Grid, Text } from "@radix-ui/themes";
 import Silk from './components/silk';
-import CreateQuestion from "./components/createQuesion";
+import CreateQuestion from "./components/CreateQuestion";
 import useMultiBaas from "./hooks/useMultiBaas";
 
 const Home: React.FC = () => {

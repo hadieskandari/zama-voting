@@ -72,17 +72,23 @@ const useMultiBaas = (): MultiBaasHook => {
     async (methodName: string, args: PostMethodArgs['args'] = []): Promise<MethodCallResponse['output'] | TransactionToSignResponse['tx']> => {
       const payload: PostMethodArgs = {
         args,
-        contractOverride: true,
+        // Do not set contractOverride here; calling by alias/label should use the registered contract
         ...(isConnected && address ? { from: address } : {}),
       };
 
-      const response = await contractsApi.callContractFunction(
-        chain,
-        votingAddressAlias,
-        votingContractLabel,
-        methodName,
-        payload
-      );
+      let response;
+      try {
+        response = await contractsApi.callContractFunction(
+          chain,
+          votingAddressAlias,
+          votingContractLabel,
+          methodName,
+          payload
+        );
+      } catch (err: any) {
+        console.error("MultiBaas callContractFunction error:", err?.response?.data ?? err);
+        throw err;
+      }
 
       const kind = (response.data.result as any)?.kind;
       if (kind === "MethodCallResponse") {
